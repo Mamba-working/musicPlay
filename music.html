@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Document</title>
+    <style>
+        body{
+            color:rgb(238, 138, 135)
+        }
+        .layout {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+            background-attachment: scroll;
+            filter: blur(5px);
+        }
+
+
+        .musicBox {
+            margin: 10px auto;
+        }
+
+        .svg {
+            height: 50vh;
+            width: 70vw;
+        }
+
+        .musicBox {
+            height: 45vh;
+            width: 65vh;
+        }
+
+        .musicBox .main {
+            width: 50vh;
+            height: 40%;
+            margin: 12px auto;
+            margin-bottom: 0;
+            padding: 20px 20px 5px 20px;
+            box-shadow: 1px 1px 1px #ccc;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        .musicBox .control {
+            color: rgb(238, 138, 135);
+            font-size: 40px;
+            margin-top: 55px;
+            float: left;
+        }
+
+        .musicBox .control i::before {
+            cursor: pointer;
+        }
+
+        .musicBox .control::after {
+            content: '';
+            display: block;
+            clear: both;
+        }
+
+        .musicBox .bar .totalBar {
+            width: 100%;
+            height: 5px;
+            background: rgb(204, 204, 204);
+            margin-top: 18px;
+            cursor: pointer;
+        }
+
+        .musicBox .bar .currentBar {
+            height: 5px;
+            background: rgb(238, 138, 135);
+            position: relative;
+            top: -5px;
+            width: 0;
+
+        }
+
+
+        .musicBox .main .info {
+            float: right;
+            margin-top: 70px;
+            margin-right: 220px;
+            color: rgb(238, 138, 135);
+        }
+
+        .time {
+            position: absolute;
+            right: 10%;
+        }
+        .songList ul{
+           list-style: none;
+           background: rgba(255, 255, 255, 0.3);
+           width:50vh;
+           margin:0 auto;
+           padding:0;
+           color: rgb(238, 138, 135);
+        }
+        .songList ul li{
+            margin-top:5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 1);
+            cursor: pointer;
+            padding: 10px;
+        }
+        .songList ul li:hover{
+            background:rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout"></div>
+    <div class="musicBox">
+        <div class="main">
+            <div class="control">
+                <span class="back">
+                    <i class="fa fa-step-backward"></i>
+                </span>
+                <span class="play">
+                    <i class="fa fa-pause"></i>
+                </span>
+                <span class="next">
+                    <i class="fa fa-step-forward"></i>
+                </span>
+            </div>
+            <div class="info">
+                <div class="song">My song</div>
+                <div class="singer">wufeifei</div>
+            </div>
+            <div class="time">
+
+            </div>
+            <div class="bar">
+                <div class="totalBar"></div>
+                <div class="currentBar"></div>
+            </div>
+
+        </div>
+        <div class="songList">
+             <ul >
+
+             </ul>
+        </div>
+    </div>
+
+    <script>
+        let xhr = new XMLHttpRequest();
+        let currentIndex = 0;
+        let music = new Audio();
+        let layout = document.querySelector(".layout");
+        let infoSong = document.querySelector(".song ");
+        let infoSinger = document.querySelector(".singer ");
+        let backbtn = document.querySelector(".musicBox .back");
+        let playbtn = document.querySelector(".musicBox .play");
+        let nextbtn = document.querySelector(".musicBox .next");
+        let barCurrent = document.querySelector(".currentBar");
+        let bar = document.querySelector(".bar");
+        let list = document.querySelector(".songList");
+        let data = [];
+        let edges = [];
+        let huange = document.querySelector("ul");
+        music.autoplay = true;
+        let musciList = [];
+        let getMusic = function () {
+            musciList = JSON.parse(xhr.responseText);
+            music.src = musciList[currentIndex].src;
+            infoSong.innerText = musciList[currentIndex].title;
+            infoSinger.innerText = musciList[currentIndex].auther;
+            layout.style.backgroundImage = 'url' + '(' + musciList[currentIndex].img + ')';
+        };
+        let nextMusic = function () {
+            currentIndex = (++currentIndex) % 4;
+            getMusic();
+        }
+        let backMusic = function(){
+            currentIndex = (data.length + --currentIndex)%data.length;
+            getMusic();
+        }
+        let makeUl = function (){
+            data.forEach(function(n){
+               let li = document.createElement("li");
+               li.innerText = n.auther+"-"+n.title;
+               list.firstElementChild.appendChild(li);
+            });
+        }
+        music.addEventListener("timeupdate", function () {
+            barCurrent.style.width = Math.floor(music.currentTime / music.duration * 100) + "%";
+            let min = Math.floor(music.currentTime / 60);
+            let s = ('' + Math.floor(music.currentTime % 60)).length === 2 ? ('' + Math.floor(music.currentTime %
+                60)) : "0" + ('' + Math.floor(music.currentTime % 60));
+            document.querySelector(".time").innerText = min + ":" + s;
+        })
+        music.addEventListener("ended",function(){
+            currentIndex = (++currentIndex) % 4;
+            getMusic();
+        })
+        huange.addEventListener("click",function(e){
+            console.log(huange.children)
+            for(let i in huange.children){
+                if(e.target === huange.children[i]){
+                    currentIndex = i;
+                }
+            }
+            getMusic();
+        })
+        nextbtn.addEventListener("click", nextMusic);
+        backbtn.addEventListener("click",backMusic);
+        xhr.open("GET", "music.json", true);
+        xhr.send();
+        xhr.addEventListener("load", function () {
+            getMusic();
+            data = JSON.parse(xhr.responseText);
+            makeUl();
+        })
+
+        playbtn.addEventListener("click", function () {
+            if (music.paused) {
+                music.play();
+                playbtn.firstElementChild.classList.remove("fa-play");
+                playbtn.firstElementChild.classList.add("fa-pause");
+            } else {
+                music.pause();
+                playbtn.firstElementChild.classList.remove("fa-pause");
+                playbtn.firstElementChild.classList.add("fa-play");
+            }
+        })
+        bar.addEventListener("click", function (e) {
+            let offset = e.offsetX;
+            let per = offset / 434;
+            barCurrent.style.width = per * 100 + '%';
+            music.currentTime = per * (music.duration);
+        })
+
+
+
+    </script>
+</body>
+
+</html>
