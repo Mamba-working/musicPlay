@@ -178,10 +178,14 @@
         };
         let nextMusic = function () {
             currentIndex = (++currentIndex) % 4;
+            playbtn.firstElementChild.classList.remove("fa-play");
+            playbtn.firstElementChild.classList.add("fa-pause");
             getMusic();
         }
         let backMusic = function(){
             currentIndex = (data.length + --currentIndex)%data.length;
+            playbtn.firstElementChild.classList.remove("fa-play");
+            playbtn.firstElementChild.classList.add("fa-pause");
             getMusic();
         }
         let makeUl = function (){
